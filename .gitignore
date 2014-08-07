@@ -28,4 +28,4 @@ proguard/
 .idea/
 .DS_store
 
-tomorrow/src/main/assets/app.properties
+app/src/main/assets/app.properties
