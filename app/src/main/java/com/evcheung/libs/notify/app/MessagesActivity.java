@@ -7,10 +7,6 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.avos.avoscloud.AVException;
-import com.avos.avoscloud.AVInstallation;
-import com.avos.avoscloud.PushService;
-import com.avos.avoscloud.SaveCallback;
 import com.evcheung.libs.notify.app.models.Message;
 
 import java.util.ArrayList;
@@ -21,15 +17,6 @@ public class MessagesActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
-
-        PushService.setDefaultPushCallback(this, MessagesActivity.class);
-//        PushService.subscribe(this, "public", ActionBarActivity.class);
-        AVInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
-            @Override
-            public void done(AVException e) {
-                AVInstallation.getCurrentInstallation().saveInBackground();
-            }
-        });
 
         ListView messageListView = (ListView) findViewById(R.id.listView);
 
