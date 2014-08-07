@@ -4,6 +4,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import com.evcheung.libs.notify.app.models.Message;
+
+import java.util.ArrayList;
 
 
 public class MessagesActivity extends ActionBarActivity {
@@ -12,6 +18,17 @@ public class MessagesActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
+
+        ListView messageListView = (ListView) findViewById(R.id.listView);
+
+        ArrayList<Message> messages = new ArrayList<Message>();
+        for (int i = 0; i < 10; i++) {
+            messages.add(new Message("" + i, "Message Content"));
+        }
+
+        ArrayAdapter adapter = new ArrayAdapter(this,
+                android.R.layout.simple_list_item_1, messages);
+        messageListView.setAdapter(adapter);
     }
 
 
