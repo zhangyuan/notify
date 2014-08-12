@@ -12,6 +12,7 @@ import com.evcheung.libs.notify.app.models.Message;
 import java.util.ArrayList;
 
 public class MessagesActivity extends ActionBarActivity {
+    ArrayList<Message> messages = new ArrayList<Message>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,9 +21,10 @@ public class MessagesActivity extends ActionBarActivity {
 
         ListView messageListView = (ListView) findViewById(R.id.listView);
 
-        ArrayList<Message> messages = new ArrayList<Message>();
-        for (int i = 0; i < 10; i++) {
-            messages.add(new Message("" + i, "Message Content"));
+        String data = getIntent().getStringExtra("com.avos.avoscloud.Data");
+
+        if (data != null){
+            messages.add(new Message("", data));
         }
 
         ArrayAdapter adapter = new ArrayAdapter(this,
