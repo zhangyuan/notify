@@ -41,4 +41,7 @@ dependencies {
     compile files('libs/avosstatistics-v2.6.1.1.jar')
     compile files('libs/fastjson.jar')
     compile files('libs/httpmime-4.2.4.jar')
+    compile files('libs/avoscloud-v2.6.1.2.jar')
+    compile files('libs/avospush-v2.6.1.2.jar')
+    compile files('libs/avosstatistics-v2.6.1.2.jar')
 }

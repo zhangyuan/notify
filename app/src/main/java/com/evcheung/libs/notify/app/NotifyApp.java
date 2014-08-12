@@ -29,7 +29,7 @@ public class NotifyApp extends Application{
         AVOSCloud.initialize(this, appId, appKey);
         AVAnalytics.enableCrashReport(this.getApplicationContext(), true);
         PushService.setDefaultPushCallback(this, MessagesActivity.class);
-//        PushService.subscribe(this, "public", MessagesActivity.class);
+        PushService.subscribe(this, "public", MessagesActivity.class);
         AVInstallation.getCurrentInstallation().saveInBackground();
     }
 }
