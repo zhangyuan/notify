@@ -1,5 +1,6 @@
 package com.evcheung.libs.notify.app;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -7,12 +8,20 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.evcheung.libs.notify.app.dao.DaoMaster;
+import com.evcheung.libs.notify.app.dao.DaoSession;
+import com.evcheung.libs.notify.app.dao.MessageDao;
 import com.evcheung.libs.notify.app.models.Message;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MessagesActivity extends ActionBarActivity {
     ArrayList<Message> messages = new ArrayList<Message>();
+    private SQLiteDatabase db;
+    private DaoMaster daoMaster;
+    private DaoSession daoSession;
+    private MessageDao messageDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +34,21 @@ public class MessagesActivity extends ActionBarActivity {
 
         if (data != null){
             messages.add(new Message("", data));
+        }
+
+
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "notes-db", null);
+        db = helper.getWritableDatabase();
+        daoMaster = new DaoMaster(db);
+        daoSession = daoMaster.newSession();
+        messageDao = daoSession.getMessageDao();
+
+
+        List<com.evcheung.libs.notify.app.dao.Message> localMessages = messageDao.loadAll();
+
+        for (int i = 0; i < localMessages.size(); i ++) {
+            com.evcheung.libs.notify.app.dao.Message localMessage = localMessages.get(i);
+            messages.add(new Message(localMessage.getId().toString(), localMessage.getTitle()));
         }
 
         ArrayAdapter adapter = new ArrayAdapter(this,
