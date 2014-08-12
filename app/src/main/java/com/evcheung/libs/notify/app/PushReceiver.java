@@ -40,12 +40,22 @@ public class PushReceiver extends BroadcastReceiver {
             JSONObject json = new JSONObject(intent.getExtras().getString("com.avos.avoscloud.Data"));
 
             if (json.getString("type").equals("message")) {
+                long id = json.getLong("id");
                 String title = json.getString("title");
                 String content = json.getString("content");
 
                 Message message = new Message(null, title, content, new Date());
 
-                messageDao.insert(message);
+                Message previous = messageDao.load(id);
+
+                if(previous != null) {
+                    previous.setTitle(title);
+                    previous.setContent(content);
+                    messageDao.update(previous);
+                } else {
+                    messageDao.insert(message);
+                }
+
                 Log.d(TAG, "insert message");
             }
 
