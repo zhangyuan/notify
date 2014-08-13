@@ -15,6 +15,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.List;
+
+import de.greenrobot.dao.query.QueryBuilder;
 
 public class PushReceiver extends BroadcastReceiver {
     private static final String TAG = "PushReceiver";
@@ -44,15 +47,17 @@ public class PushReceiver extends BroadcastReceiver {
                 String title = json.getString("title");
                 String content = json.getString("content");
 
-                Message message = new Message(null, title, content, new Date());
+                QueryBuilder qb = messageDao.queryBuilder();
+                List list = qb.where(MessageDao.Properties.Id.eq(id)).limit(1).build().list();
 
-                Message previous = messageDao.load(id);
-
-                if(previous != null) {
-                    previous.setTitle(title);
-                    previous.setContent(content);
-                    messageDao.update(previous);
+                Message message = null;
+                if (list.size() > 0) {
+                    message = (Message) list.get(0);
+                    message.setTitle(title);
+                    message.setContent(content);
+                    messageDao.update(message);
                 } else {
+                    message = new Message(id, title, content, new Date());
                     messageDao.insert(message);
                 }
 
