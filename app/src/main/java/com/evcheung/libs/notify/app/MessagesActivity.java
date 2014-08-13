@@ -28,6 +28,7 @@ public class MessagesActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
 
+
         ListView messageListView = (ListView) findViewById(R.id.listView);
 
         String data = getIntent().getStringExtra("com.avos.avoscloud.Data");
@@ -37,7 +38,7 @@ public class MessagesActivity extends ActionBarActivity {
         }
 
 
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "notes-db", null);
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, NotifyApp.DB_NAME, null);
         db = helper.getWritableDatabase();
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();

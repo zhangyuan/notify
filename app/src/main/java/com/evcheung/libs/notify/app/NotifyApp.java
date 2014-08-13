@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class NotifyApp extends Application{
+    public static final String DB_NAME = "notify-db";
+
     @Override
     public void onCreate() {
         String appId = null;

@@ -1,5 +1,9 @@
 package com.evcheung.libs.notify.app;
 
+import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +25,7 @@ import de.greenrobot.dao.query.QueryBuilder;
 
 public class PushReceiver extends BroadcastReceiver {
     private static final String TAG = "PushReceiver";
+
     private SQLiteDatabase db;
     private DaoMaster daoMaster;
     private DaoSession daoSession;
@@ -31,45 +36,90 @@ public class PushReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         String channel = intent.getExtras().getString("com.avos.avoscloud.Channel");
 
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, "notes-db", null);
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, NotifyApp.DB_NAME, null);
         db = helper.getWritableDatabase();
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();
         messageDao = daoSession.getMessageDao();
 
+        String raw_data = intent.getExtras().getString("com.avos.avoscloud.Data");
+        Log.d(TAG, raw_data);
+
+        JSONObject json;
+        String messageType;
         try {
-            Log.d(TAG, (intent.getExtras().getString("com.avos.avoscloud.Data")));
+            json = new JSONObject(raw_data);
+            messageType = json.getString("type");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
 
-            JSONObject json = new JSONObject(intent.getExtras().getString("com.avos.avoscloud.Data"));
+        if (messageType.equals("message")) {
+            Message message = saveMessage(json);
+            if (message != null) {
+                notifyMessage(context, message);
+            }
+        }
 
-            if (json.getString("type").equals("message")) {
-                long id = json.getLong("id");
-                String title = json.getString("title");
-                String content = json.getString("content");
+        Log.d(TAG, "got action " + action + " on channel " + channel + " with: ");
+    }
 
-                QueryBuilder qb = messageDao.queryBuilder();
-                List list = qb.where(MessageDao.Properties.Id.eq(id)).limit(1).build().list();
+    private void notifyMessage(Context context, Message message) {
+        NotificationManager notificationManger = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-                Message message = null;
-                if (list.size() > 0) {
-                    message = (Message) list.get(0);
-                    message.setTitle(title);
-                    message.setContent(content);
-                    messageDao.update(message);
-                } else {
-                    message = new Message(id, title, content, new Date());
-                    messageDao.insert(message);
-                }
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        String activityClassName = am.getRunningTasks(1).get(0).topActivity.getClassName();
+        final String messageActivityClassName = MessagesActivity.class.getName();
 
-                Log.d(TAG, "insert message");
+        Log.d(TAG, "activityClassName = " + activityClassName);
+        Log.d(TAG, "messageActivityClassName = " + messageActivityClassName);
+
+        if (!activityClassName.equals(messageActivityClassName)) {
+            int icon = R.drawable.abc_ic_go;
+            long when = System.currentTimeMillis();
+
+            Notification notification = new Notification(icon, "Notify", when);
+
+            Intent notificationIntent = new Intent(context, MessagesActivity.class);
+            PendingIntent pendIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+            notification.setLatestEventInfo(context, message.getTitle(), message.getContent(), pendIntent);
+            notification.defaults |= Notification.DEFAULT_SOUND;
+            notification.defaults |= Notification.DEFAULT_LIGHTS;
+
+            Log.d(TAG, "notify " + messageActivityClassName);
+            notificationManger.notify(0, notification);
+        }
+    }
+
+    public Message saveMessage(JSONObject json) {
+        long id;
+        try {
+            id = json.getLong("id");
+            String title = json.getString("title");
+            String content = json.getString("content");
+
+            QueryBuilder qb = messageDao.queryBuilder();
+            List list = qb.where(MessageDao.Properties.Id.eq(id)).limit(1).build().list();
+
+            Message message;
+            if (list.size() > 0) {
+                message = (Message) list.get(0);
+                message.setTitle(title);
+                message.setContent(content);
+                messageDao.update(message);
+            } else {
+                message = new Message(id, title, content, new Date());
+                messageDao.insert(message);
             }
 
-            Log.d(TAG, "got action " + action + " on channel " + channel + " with:");
+            Log.d(TAG, "save message");
+
+            return message;
 
         } catch (JSONException e) {
             e.printStackTrace();
+            return null;
         }
-
-
     }
 }
