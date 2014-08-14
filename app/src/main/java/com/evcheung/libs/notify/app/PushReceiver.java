@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.evcheung.libs.notify.app.dao.DaoMaster;
@@ -34,7 +35,13 @@ public class PushReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        String channel = intent.getExtras().getString("com.avos.avoscloud.Channel");
+
+        Bundle bundle = intent.getExtras();
+
+        if (bundle == null) {
+            return;
+        }
+        String channel = bundle.getString("com.avos.avoscloud.Channel");
 
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, NotifyApp.DB_NAME, null);
         db = helper.getWritableDatabase();
@@ -63,6 +70,7 @@ public class PushReceiver extends BroadcastReceiver {
         }
 
         Log.d(TAG, "got action " + action + " on channel " + channel + " with: ");
+
     }
 
     private void notifyMessage(Context context, Message message) {
