@@ -28,22 +28,13 @@ public class MessagesActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
 
-
         ListView messageListView = (ListView) findViewById(R.id.listView);
 
-        String data = getIntent().getStringExtra("com.avos.avoscloud.Data");
-
-        if (data != null){
-            messages.add(new Message("", data));
-        }
-
-
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, NotifyApp.DB_NAME, null);
-        db = helper.getWritableDatabase();
+        db = helper.getReadableDatabase();
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();
         messageDao = daoSession.getMessageDao();
-
 
         List<com.evcheung.libs.notify.app.dao.Message> localMessages = messageDao.loadAll();
 
