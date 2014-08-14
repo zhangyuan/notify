@@ -18,8 +18,6 @@ import java.util.List;
 
 public class MessagesActivity extends ActionBarActivity {
     ArrayList<Message> messages = new ArrayList<Message>();
-    private SQLiteDatabase db;
-    private DaoMaster daoMaster;
     private DaoSession daoSession;
     private MessageDao messageDao;
 
@@ -30,10 +28,7 @@ public class MessagesActivity extends ActionBarActivity {
 
         ListView messageListView = (ListView) findViewById(R.id.listView);
 
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, NotifyApp.DB_NAME, null);
-        db = helper.getReadableDatabase();
-        daoMaster = new DaoMaster(db);
-        daoSession = daoMaster.newSession();
+        daoSession  = getSession();
         messageDao = daoSession.getMessageDao();
 
         List<com.evcheung.libs.notify.app.dao.Message> localMessages = messageDao.loadAll();
@@ -46,6 +41,14 @@ public class MessagesActivity extends ActionBarActivity {
         ArrayAdapter adapter = new ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, messages);
         messageListView.setAdapter(adapter);
+    }
+
+    private DaoSession getSession() {
+        SQLiteDatabase db;
+        DaoMaster daoMaster;DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, NotifyApp.DB_NAME, null);
+        db = helper.getReadableDatabase();
+        daoMaster = new DaoMaster(db);
+        return daoMaster.newSession();
     }
 
 
