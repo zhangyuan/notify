@@ -35,7 +35,7 @@ public class MessagesActivity extends ActionBarActivity {
 
         for (int i = 0; i < localMessages.size(); i ++) {
             com.evcheung.libs.notify.app.dao.Message localMessage = localMessages.get(i);
-            messages.add(new Message(localMessage.getId().toString(), localMessage.getTitle()));
+            messages.add(new Message(localMessage.getId().toString(), localMessage.getTitle(), localMessage.getContent()));
         }
 
         ArrayAdapter adapter = new ArrayAdapter(this,
