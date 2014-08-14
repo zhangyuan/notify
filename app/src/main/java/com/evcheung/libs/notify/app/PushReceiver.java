@@ -1,6 +1,5 @@
 package com.evcheung.libs.notify.app;
 
-import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -76,28 +75,20 @@ public class PushReceiver extends BroadcastReceiver {
     private void notifyMessage(Context context, Message message) {
         NotificationManager notificationManger = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        String activityClassName = am.getRunningTasks(1).get(0).topActivity.getClassName();
         final String messageActivityClassName = MessagesActivity.class.getName();
+        int icon = R.drawable.abc_ic_go;
+        long when = System.currentTimeMillis();
 
-        Log.d(TAG, "activityClassName = " + activityClassName);
-        Log.d(TAG, "messageActivityClassName = " + messageActivityClassName);
+        Notification notification = new Notification(icon, "Notify", when);
 
-        if (!activityClassName.equals(messageActivityClassName)) {
-            int icon = R.drawable.abc_ic_go;
-            long when = System.currentTimeMillis();
+        Intent notificationIntent = new Intent(context, MessagesActivity.class);
+        PendingIntent pendIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notification.setLatestEventInfo(context, message.getTitle(), message.getContent(), pendIntent);
+        notification.defaults |= Notification.DEFAULT_SOUND;
+        notification.defaults |= Notification.DEFAULT_LIGHTS;
 
-            Notification notification = new Notification(icon, "Notify", when);
-
-            Intent notificationIntent = new Intent(context, MessagesActivity.class);
-            PendingIntent pendIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-            notification.setLatestEventInfo(context, message.getTitle(), message.getContent(), pendIntent);
-            notification.defaults |= Notification.DEFAULT_SOUND;
-            notification.defaults |= Notification.DEFAULT_LIGHTS;
-
-            Log.d(TAG, "notify " + messageActivityClassName);
-            notificationManger.notify(0, notification);
-        }
+        Log.d(TAG, "notify " + messageActivityClassName);
+        notificationManger.notify(0, notification);
     }
 
     public Message saveMessage(JSONObject json) {
