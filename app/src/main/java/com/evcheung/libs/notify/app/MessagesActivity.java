@@ -1,5 +1,9 @@
 package com.evcheung.libs.notify.app;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -17,40 +21,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessagesActivity extends ActionBarActivity {
+    public static String UPDATE_MESSAGES = "com.evcheung.libs.notify.app.UPDATE_MESSAGES";
+
     ArrayList<Message> messages = new ArrayList<Message>();
     private DaoSession daoSession;
-    private MessageDao messageDao;
+
+    private IntentFilter filter = new IntentFilter(UPDATE_MESSAGES);
+    private MessageReceiver receiver = new MessageReceiver();
+    private ArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
 
+        initializeSession();
+
+        registerReceiver(receiver, filter);
+
         ListView messageListView = (ListView) findViewById(R.id.listView);
+        adapter = new ArrayAdapter(this,
+                android.R.layout.simple_list_item_1, messages);
 
-        daoSession  = getSession();
-        messageDao = daoSession.getMessageDao();
+        updateMessages();
+        messageListView.setAdapter(adapter);
+    }
 
-        List<com.evcheung.libs.notify.app.dao.Message> localMessages = messageDao.loadAll();
+    private void updateMessages() {
+        MessageDao messageDao = daoSession.getMessageDao();
+        List<com.evcheung.libs.notify.app.dao.Message> localMessages = messageDao.queryBuilder().orderDesc(MessageDao.Properties.Id).list();
 
+        messages.clear();
         for (int i = 0; i < localMessages.size(); i ++) {
             com.evcheung.libs.notify.app.dao.Message localMessage = localMessages.get(i);
             messages.add(new Message(localMessage.getId().toString(), localMessage.getTitle(), localMessage.getContent()));
         }
-
-        ArrayAdapter adapter = new ArrayAdapter(this,
-                android.R.layout.simple_list_item_1, messages);
-        messageListView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
-    private DaoSession getSession() {
+    private void initializeSession() {
         SQLiteDatabase db;
-        DaoMaster daoMaster;DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, NotifyApp.DB_NAME, null);
+        DaoMaster daoMaster;
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, NotifyApp.DB_NAME, null);
         db = helper.getReadableDatabase();
         daoMaster = new DaoMaster(db);
-        return daoMaster.newSession();
+        daoSession = daoMaster.newSession();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -72,4 +88,16 @@ public class MessagesActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(receiver);
+        super.onDestroy();
+    }
+
+    class MessageReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateMessages();
+        }
+    }
 }

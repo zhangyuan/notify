@@ -64,6 +64,10 @@ public class PushReceiver extends BroadcastReceiver {
         if (messageType.equals("message")) {
             Message message = saveMessage(json);
             if (message != null) {
+                Intent updateMessageIntent = new Intent();
+                updateMessageIntent.setAction(MessagesActivity.UPDATE_MESSAGES);
+                context.sendBroadcast(updateMessageIntent);
+
                 notifyMessage(context, message);
             }
         }
