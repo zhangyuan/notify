@@ -23,7 +23,7 @@ import java.util.List;
 public class MessagesActivity extends ActionBarActivity {
     public static String UPDATE_MESSAGES = "com.evcheung.libs.notify.app.UPDATE_MESSAGES";
 
-    ArrayList<Message> messages = new ArrayList<Message>();
+    List<Message> messages = new ArrayList<Message>();
     private DaoSession daoSession;
 
     private IntentFilter filter = new IntentFilter(UPDATE_MESSAGES);
@@ -40,8 +40,8 @@ public class MessagesActivity extends ActionBarActivity {
         registerReceiver(receiver, filter);
 
         ListView messageListView = (ListView) findViewById(R.id.listView);
-        adapter = new ArrayAdapter(this,
-                android.R.layout.simple_list_item_1, messages);
+
+        adapter = new MessagesListAdapter(getApplicationContext(), R.layout.messages_list_entry, messages);
 
         updateMessages();
         messageListView.setAdapter(adapter);

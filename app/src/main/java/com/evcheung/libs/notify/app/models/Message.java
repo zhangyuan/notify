@@ -15,4 +15,12 @@ public class Message {
     public String toString() {
         return String.format("[%s] %s\n%s", id, title, content);
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return content;
+    }
 }
