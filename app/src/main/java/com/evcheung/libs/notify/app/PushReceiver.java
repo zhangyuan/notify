@@ -49,6 +49,10 @@ public class PushReceiver extends BroadcastReceiver {
         messageDao = daoSession.getMessageDao();
 
         String raw_data = intent.getExtras().getString("com.avos.avoscloud.Data");
+
+        if (raw_data == null) {
+            return;
+        }
         Log.d(TAG, raw_data);
 
         JSONObject json;
