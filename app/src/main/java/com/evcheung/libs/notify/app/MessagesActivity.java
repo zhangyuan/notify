@@ -24,6 +24,7 @@ public class MessagesActivity extends ActionBarActivity {
     public static String UPDATE_MESSAGES = "com.evcheung.libs.notify.app.UPDATE_MESSAGES";
 
     List<Message> messages = new ArrayList<Message>();
+    SQLiteDatabase db;
     private DaoSession daoSession;
 
     private IntentFilter filter = new IntentFilter(UPDATE_MESSAGES);
@@ -48,6 +49,7 @@ public class MessagesActivity extends ActionBarActivity {
     }
 
     private void updateMessages() {
+        daoSession.clear();
         MessageDao messageDao = daoSession.getMessageDao();
         List<com.evcheung.libs.notify.app.dao.Message> localMessages = messageDao.queryBuilder().orderDesc(MessageDao.Properties.Id).list();
 
@@ -60,7 +62,6 @@ public class MessagesActivity extends ActionBarActivity {
     }
 
     private void initializeSession() {
-        SQLiteDatabase db;
         DaoMaster daoMaster;
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, NotifyApp.DB_NAME, null);
         db = helper.getReadableDatabase();
@@ -70,7 +71,6 @@ public class MessagesActivity extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.messages, menu);
         return true;
@@ -91,6 +91,7 @@ public class MessagesActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(receiver);
+        db.close();
         super.onDestroy();
     }
 

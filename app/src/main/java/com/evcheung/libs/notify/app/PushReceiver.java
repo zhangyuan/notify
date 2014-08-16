@@ -72,6 +72,8 @@ public class PushReceiver extends BroadcastReceiver {
             }
         }
 
+        db.close();
+
         Log.d(TAG, "got action " + action + " on channel " + channel + " with: ");
 
     }
